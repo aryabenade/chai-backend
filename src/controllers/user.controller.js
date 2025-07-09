@@ -21,7 +21,6 @@ const registerUser = asyncHandler(async (req, res) => {
     /* take data from the frontend and the field "name"(attribute) should be 
     same for both frontend and backend */
     const { fullName, email, username, password } = req.body
-    console.log(email);
 
     //check if there are any empty input fields
     if (
@@ -31,7 +30,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // check if a user already exists
-    const existedUser = User.findOne({
+    const existedUser = await User.findOne({
         $or: [{ username }, { email }]
     })
 
@@ -41,9 +40,17 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     //upload images to server using multer and get their path
-    const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverImage[0]?.path;
-    
+    // const avatarLocalPath = req?.files?.avatar[0].path;
+    // const coverImageLocalPath = req?.files?.coverImage[0].path;
+    let coverImageLocalPath, avatarLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
+
+    if (req.files && Array.isArray(req.files.avatar) && req.files.avatar.length > 0) {
+        avatarLocalPath = req.files.avatar[0].path;
+    }
+
     if (!avatarLocalPath) {
         throw new ApiError(400, "Avatar file is required")
     }
@@ -78,14 +85,15 @@ const registerUser = asyncHandler(async (req, res) => {
         "-password -refreshToken"
     )
 
-    // check if user is created without those fields 
-    if(!createdUser){
-        throw new ApiError(500,"Something went wrong while registering the user");
+    // check if user is created or not without those fields 
+    if (!createdUser) {
+        throw new ApiError(500, "Something went wrong while registering the user");
     }
 
     return res.status(201).json(
-        new ApiRespose(200,createdUser,"User registered successfully")
+        new ApiRespose(200, createdUser, "User registered successfully")
     )
+   
 })
 
 

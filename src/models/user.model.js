@@ -88,4 +88,8 @@ userSchema.methods.generateRefreshToken = function () {
 
 export const User = mongoose.model("User", userSchema)
 
-
+/* In mongoDb as soon as we call the mongoose.model() method with the name of the model 
+and the schema, a collection or model is created in mongodb and we cant overwrite the structure 
+of the model by just making changes in the schema but first we have to delete the existing model 
+and then modify the schema and then call the mongoose.model() again to get a model with the
+changes we made in the schema */
